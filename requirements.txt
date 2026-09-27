@@ -1,0 +1,8 @@
+# Triage service image (Dockerfile). Pinned from the tested venv.
+fastapi==0.141.1
+uvicorn[standard]==0.54.0
+pydantic==2.13.5
+PyJWT==2.15.0
+bcrypt==5.0.0
+python-dotenv==1.2.3
+openai==3.19.2

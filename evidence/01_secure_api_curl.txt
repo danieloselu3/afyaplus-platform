@@ -1,0 +1,77 @@
+# AfyaPlus triage API evidence - 2026-09-27T19:03:25Z - http://127.0.0.1:8000
+
+## 200: health is open, login works, triage answers
+=== GET /health (no token needed)
+$ curl http://127.0.0.1:8000/health
+{"service":"triage-api","version":"1.0.0","status":"ok","model_backend":"openai"}
+--> HTTP 200
+
+=== POST /token as mercy (coordinator)
+$ curl -X POST http://127.0.0.1:8000/token -H Content-Type: application/json -d {"username": "mercy", "password": "logistics2026"}
+{"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtZXJjeSIsInJvbGUiOiJjb29yZGluYXRvciIsImlzcyI6ImFmeWFwbHVzLXBsYXRmb3JtIiwiaWF0IjoxNzkwNTM1ODA2LCJleHAiOjE3OTA1Mzc2MDZ9.m4P8zUaHuYMqmHLL9RQsCMgvqUfl1hNWiM_v3hQbV3s","token_type":"bearer","expires_in":1800}
+--> HTTP 200
+
+=== POST /triage red-flag message, coordinator token
+$ curl -X POST http://127.0.0.1:8000/triage -H Content-Type: application/json -H Authorization: Bearer <token> -d {"patient_message": "I have chest pain and feel dizzy", "county": "Kisumu"}
+{"urgency":"high","advice":"Please go to a clinic or emergency care now.","model_used":"gpt-4o-mini","handled_for":"mercy","request_id":"10046b61"}
+--> HTTP 200
+
+=== POST /triage everyday message, coordinator token
+$ curl -X POST http://127.0.0.1:8000/triage -H Content-Type: application/json -H Authorization: Bearer <token> -d {"patient_message": "My child has had a runny nose and mild cough for two days", "county": "Vihiga"}
+{"urgency":"low","advice":"Monitor your child's symptoms and ensure they stay hydrated. If the symptoms worsen or persist beyond a few more days, consider consulting a clinician.","model_used":"gpt-4o-mini","handled_for":"mercy","request_id":"28652bc3"}
+--> HTTP 200
+
+## 401: who are you?
+=== POST /triage with no token
+$ curl -X POST http://127.0.0.1:8000/triage -H Content-Type: application/json -d {"patient_message": "I have chest pain and feel dizzy", "county": "Kisumu"}
+{"detail":"Not authenticated. Log in at /token and send 'Authorization: Bearer <token>'."}
+--> HTTP 401
+
+=== POST /triage with a garbage token
+$ curl -X POST http://127.0.0.1:8000/triage -H Content-Type: application/json -H Authorization: Bearer <token> -d {"patient_message": "I have chest pain and feel dizzy", "county": "Kisumu"}
+{"detail":"Invalid token."}
+--> HTTP 401
+
+=== POST /token with the wrong password
+$ curl -X POST http://127.0.0.1:8000/token -H Content-Type: application/json -d {"username": "mercy", "password": "wrong-password"}
+{"detail":"Wrong username or password."}
+--> HTTP 401
+
+## 403: we know you, and the answer is no
+=== POST /triage with a valid VIEWER token (guest)
+$ curl -X POST http://127.0.0.1:8000/triage -H Content-Type: application/json -H Authorization: Bearer <token> -d {"patient_message": "I have chest pain and feel dizzy", "county": "Kisumu"}
+{"detail":"Your role 'viewer' may not use this endpoint."}
+--> HTTP 403
+
+## 422: rejected at the door, the model never runs
+=== (a) message too short
+$ curl -X POST http://127.0.0.1:8000/triage -H Content-Type: application/json -H Authorization: Bearer <token> -d {"patient_message": "hi", "county": "Kisumu"}
+{"detail":[{"type":"string_too_short","loc":["body","patient_message"],"msg":"String should have at least 5 characters","input":"hi","ctx":{"min_length":5}}]}
+--> HTTP 422
+
+=== (b) county missing
+$ curl -X POST http://127.0.0.1:8000/triage -H Content-Type: application/json -H Authorization: Bearer <token> -d {"patient_message": "I feel unwell today"}
+{"detail":[{"type":"missing","loc":["body","county"],"msg":"Field required","input":{"patient_message":"I feel unwell today"}}]}
+--> HTTP 422
+
+=== (c) body is not JSON
+$ curl -X POST http://127.0.0.1:8000/triage -H Content-Type: application/json -H Authorization: Bearer <token> -d not json at all
+{"detail":[{"type":"json_invalid","loc":["body",0],"msg":"JSON decode error","input":{},"ctx":{"error":"Expecting value"}}]}
+--> HTTP 422
+
+=== (d) unexpected extra field
+$ curl -X POST http://127.0.0.1:8000/triage -H Content-Type: application/json -H Authorization: Bearer <token> -d {"patient_message": "I feel unwell today", "county": "Kisumu", "priority": "vip"}
+{"detail":[{"type":"extra_forbidden","loc":["body","priority"],"msg":"Extra inputs are not permitted","input":"vip"}]}
+--> HTTP 422
+
+## 429: authenticated is not unlimited (5 triage calls per minute; 2 already used above)
+burst call 1 --> HTTP 200
+burst call 2 --> HTTP 200
+burst call 3 --> HTTP 200
+burst call 4 --> HTTP 429
+burst call 5 --> HTTP 429
+
+## 503: the model behind us failed (second copy started with OPENAI_API_KEY=sk-invalid-on-purpose)
+$ curl -X POST http://127.0.0.1:8002/triage -H "Authorization: Bearer <token>" ...
+{"detail":"The AI model is unavailable. Try again shortly."}
+--> HTTP 503
