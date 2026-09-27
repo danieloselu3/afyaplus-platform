@@ -53,7 +53,10 @@ metadata:
   name: agent-api
   labels: {app: agent-api, version: "1.1.0"}
 spec:
-  replicas: 2
+  # Held at 1: reorder PROPOSALS and rate-limit counters are in process memory, so a confirm
+  # routed to another copy would 404. Scale only after they move to a shared store
+  # (Redis/Postgres). See docs/ENGINEERING_REPORT.md section 5.
+  replicas: 1
   selector:
     matchLabels: {app: agent-api}
   template:
