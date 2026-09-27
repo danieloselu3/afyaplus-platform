@@ -21,7 +21,8 @@ SERVICE = "agent-api"
 AGENT_TIMEOUT_SECONDS = 90
 log = get_logger("agent_api", "agent_api.log")
 
-app = FastAPI(title="AfyaPlus Logistics Agent API", version=VERSION)
+app = FastAPI(title="AfyaPlus Logistics Agent API", version=VERSION,
+              description="Ask logistics questions. The agent recommends; people decide.")
 add_request_logging(app, log)
 app.include_router(auth_router)          # the same /token door as the triage service
 
