@@ -20,7 +20,7 @@ RUN pip install -r requirements.txt
 RUN useradd --create-home --uid 10001 afya && mkdir -p /app/logs && chown afya /app/logs
 
 # 3. Code last: editing Python only rebuilds from here down
-COPY config.py auth.py rate_limit.py triage_model.py triage_api.py ./
+COPY config.py auth.py rate_limit.py observability.py triage_model.py triage_api.py ./
 
 USER afya
 

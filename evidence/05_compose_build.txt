@@ -1,0 +1,52 @@
+$ docker compose build   (v1.1.0 images)
+#1 [internal] load local bake definitions
+#1 DONE 0.0s
+#2 [triage internal] load build definition from Dockerfile
+#2 DONE 0.0s
+#3 [agent internal] load build definition from Dockerfile.agent
+#3 DONE 0.0s
+#4 [agent internal] load metadata for docker.io/library/python:3.12-slim
+#5 [auth] library/python:pull token for registry-1.docker.io
+#5 DONE 0.0s
+#4 [agent internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 1.9s
+#6 [agent internal] load .dockerignore
+#6 DONE 0.0s
+#7 [triage internal] load build context
+#7 DONE 0.0s
+#8 [agent 1/6] FROM docker.io/library/python:3.12-slim@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f
+#8 DONE 0.0s
+#9 [triage 2/6] WORKDIR /app
+#9 CACHED
+#10 [triage 4/6] RUN pip install -r requirements.txt
+#10 CACHED
+#11 [triage 3/6] COPY requirements.txt .
+#11 CACHED
+#12 [triage 5/6] RUN useradd --create-home --uid 10001 afya && mkdir -p /app/logs && chown afya /app/logs
+#12 CACHED
+#13 [agent internal] load build context
+#13 DONE 0.0s
+#14 [agent 3/6] COPY requirements.txt requirements-agent.txt ./
+#14 DONE 0.0s
+#15 [triage 6/6] COPY config.py auth.py rate_limit.py observability.py triage_model.py triage_api.py ./
+#15 DONE 0.0s
+#16 [triage] exporting to image
+#16 naming to docker.io/library/afyaplus-triage:1.1.0 done
+#16 DONE 0.2s
+#17 [triage] resolving provenance for metadata file
+#17 DONE 0.0s
+#18 [agent 4/6] RUN pip install -r requirements-agent.txt
+#18 DONE 86.7s
+#19 [agent 5/6] RUN useradd --create-home --uid 10001 afya && mkdir -p /app/logs && chown afya /app/logs
+#19 DONE 0.2s
+#20 [agent 6/6] COPY clinics.json config.py auth.py rate_limit.py observability.py logistics_mcp.py agent.py agent_api.py ./
+#20 DONE 0.1s
+#21 [agent] exporting to image
+#21 naming to docker.io/library/afyaplus-agent:1.1.0 done
+#21 DONE 5.0s
+#22 [agent] resolving provenance for metadata file
+#22 DONE 0.0s
+
+real	1m40.023s
+user	0m0.262s
+sys	0m0.123s

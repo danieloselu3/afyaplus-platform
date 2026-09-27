@@ -1,0 +1,35 @@
+# docker-compose.yml - the whole AfyaPlus platform on one machine.
+#   docker compose up -d --build     start both services
+#   docker compose ps                status (both should become "healthy")
+#   docker compose down              stop everything (the logs volume survives)
+# Image tags match the git tag of the release (see CONTRIBUTING.md).
+x-common: &common
+  env_file: .env                 # secrets injected at start time, never baked into the image
+  environment:
+    APP_ENV: production          # overrides .env: refuse to start without JWT_SECRET
+  restart: unless-stopped        # a crashed box is replaced; a deliberate `down` is respected
+  volumes:
+    - platform-logs:/app/logs    # one shared log directory: `grep trace=<id>` sees every service
+
+services:
+  triage:
+    <<: *common
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: afyaplus-triage:1.1.0
+    ports:
+      - "8000:8000"
+
+  agent:
+    <<: *common
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    image: afyaplus-agent:1.1.0
+    ports:
+      - "8001:8001"
+    # The MCP server runs inside this container as a stdio child process of the agent.
+
+volumes:
+  platform-logs:

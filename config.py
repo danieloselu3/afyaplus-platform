@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Single source of truth: /health, the git tag and the image tag all use this.
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 APP_ENV = os.getenv("APP_ENV", "development")
 TRIAGE_BACKEND = os.getenv("TRIAGE_BACKEND", "openai")   # openai | stub
