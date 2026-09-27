@@ -1,0 +1,36 @@
+# Deliverable 4: defect found during the first agent run (2026-09-27 19:12 UTC), BEFORE the fix
+# Command: python agent.py   (trace=cli, gpt-4o-mini, commit on branch feature/logistics-agent)
+# Question: "Which clinics need an amoxicillin reorder, and what route should the driver take from Kisumu Central?"
+
+## Tool calls the agent made (agent.log / mcp_server.log)
+2026-09-27 22:12:57,529 INFO logistics_mcp trace=cli tool=check_stock item='amoxicillin' county='Kisumu' outcome=ok ms=0
+2026-09-27 22:12:57,531 INFO logistics_mcp trace=cli tool=plan_delivery_route start_clinic_id='C01' stop_clinic_ids='None' outcome=ok ms=0
+2026-09-27 22:12:58,976 INFO agent trace=cli agent_end status=answered model_calls=2 tokens_in=1760 tokens_out=158
+
+## Final answer (WRONG)
+No clinics need an amoxicillin reorder.
+
+The delivery route from Kisumu Central Clinic (C01) is as follows:
+1. Kisumu Central Clinic (0.0 km)
+2. Kisumu West Dispensary (8.8 km)
+3. Vihiga Health Post (17.5 km)
+4. Homa Bay Lakeside Clinic (70.4 km)
+5. Kisii Family Clinic (38.4 km)
+
+Total distance: 135.1 km.
+
+## Diagnosis
+The model read "Kisumu Central" as a county filter and called check_stock(county="Kisumu"),
+which returned only 2 of 5 clinics. It then generalised "no reorder needed" to the whole
+network. Truth (unfiltered check_stock): Vihiga Health Post (8 units) and Homa Bay Lakeside
+Clinic (0 units) need a reorder. Every individual tool answer was correct; the failure was
+an unstated scope in the tool contract.
+
+## Fix (same commit series, see git log)
+1. check_stock docstring: county is only for questions that explicitly ask about one county;
+   a start clinic or place name is NOT a county filter.
+2. check_stock result now states its scope ("clinics_included": "2 of 5 (county=Kisumu)"), so
+   the model can see when it is looking at a subset.
+3. System prompt: only make network-wide claims ("no clinics", "all clinics") from an
+   unfiltered result.
+After-fix transcript: evidence/04_agent_transcripts.md (question A).

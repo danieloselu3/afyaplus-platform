@@ -22,6 +22,13 @@ def test_check_stock_normalises_and_filters_by_county():
     assert [r["clinic_id"] for r in data["stock"]] == ["C01", "C05"]
 
 
+def test_check_stock_states_its_scope():
+    # Regression: the agent once generalised a county subset to the whole network.
+    assert json.loads(m.check_stock("amoxicillin"))["clinics_included"] == "all 5 clinics"
+    subset = json.loads(m.check_stock("amoxicillin", county="Kisumu"))["clinics_included"]
+    assert subset == "2 of 5 clinics (county=Kisumu only)"
+
+
 @pytest.mark.parametrize("call,valid", [
     (lambda: m.check_stock("bandages"), m.VALID_ITEMS),
     (lambda: m.check_stock("amoxicillin", county="Nairobi"), m.VALID_COUNTIES),

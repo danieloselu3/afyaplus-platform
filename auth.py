@@ -2,13 +2,16 @@
 # password hashing, token creation, and the current_user / require_role doormen.
 import os
 from datetime import datetime, timedelta, timezone
+from typing import Literal
 
 import bcrypt
 import jwt
-from fastapi import Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel, ConfigDict, Field
 
 from config import APP_ENV, get_logger
+from rate_limit import check_rate_limit
 
 log = get_logger("auth", "auth.log")
 
@@ -83,3 +86,34 @@ def require_role(*roles: str):
                                 detail=f"Your role '{user['role']}' may not use this endpoint.")
         return user
     return checker
+
+
+# ---------- the login door, mounted by every service ----------
+
+class LoginRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    username: str = Field(min_length=3, max_length=32, pattern=r"^[a-z0-9_]+$")
+    password: str = Field(min_length=8, max_length=128)
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: Literal["bearer"] = "bearer"
+    expires_in: int = Field(description="Seconds until the token expires")
+
+
+auth_router = APIRouter(tags=["auth"])
+
+
+@auth_router.post("/token", response_model=TokenResponse,
+                  responses={401: {"description": "Wrong username or password"},
+                             429: {"description": "More than 5 attempts per minute"}})
+def login(body: LoginRequest, request: Request):
+    """Exchange a username and password for a 30-minute bearer token."""
+    # Throttle guessing: key on client address + attempted username (callers have no token yet).
+    client = request.client.host if request.client else "unknown"
+    check_rate_limit(f"login:{client}:{body.username}", max_requests=5)
+    if not check_password(body.username, body.password):
+        log.warning("login_failed user=%s client=%s", body.username, client)
+        raise _unauthorized("Wrong username or password.")
+    return {"access_token": create_token(body.username), "expires_in": TOKEN_MINUTES * 60}
