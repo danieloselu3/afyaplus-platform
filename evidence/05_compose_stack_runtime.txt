@@ -1,0 +1,76 @@
+# v1.1.0 stack running under docker compose - 2026-09-27T19:21:18Z
+
+$ docker compose ps
+SERVICE   IMAGE                   STATUS                           PORTS
+agent     afyaplus-agent:1.1.0    Up About a minute (healthy)      0.0.0.0:8001->8001/tcp, [::]:8001->8001/tcp
+triage    afyaplus-triage:1.1.0   Up 1 second (health: starting)   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+
+$ docker images --filter reference='afyaplus-*'
+REPOSITORY        TAG       IMAGE ID       SIZE
+afyaplus-agent    1.1.0     87ff7f0e75d0   379MB
+afyaplus-triage   1.1.0     4ce76b3216ff   266MB
+afyaplus-triage   1.0.0     f87b11fd7c69   266MB
+
+$ curl localhost:8000/health ; curl localhost:8001/health
+{"service":"triage-api","version":"1.1.0","status":"ok","model_backend":"openai"}
+{"service":"agent-api","version":"1.1.0","status":"ok"}
+
+=== Agent question answered inside the containers (token from the agent service's /token)
+$ curl -X POST localhost:8001/ask-logistics -H 'Authorization: Bearer <token>' -d '{"question": "Which clinics are low on malaria kits, and how long is the drive from Kisumu Central to each of them?"}'
+{
+    "answer": "The clinics low on malaria kits are:\n\n1. **Vihiga Health Post**: 6 units (reorder needed)\n   - Drive from Kisumu Central Clinic: 16.5 km, approximately 25 minutes.\n\n2. **Kisumu West Dispensary**: 0 units (reorder needed)\n   - Drive from Kisumu Central Clinic: 8.8 km, approximately 15 minutes.",
+    "status": "answered",
+    "trace_id": "62330d2c",
+    "asked_by": "mercy",
+    "role": "coordinator",
+    "tools_used": [
+        "check_stock",
+        "get_delivery_eta",
+        "get_delivery_eta"
+    ],
+    "model_calls": 3,
+    "tokens_in": 3224,
+    "tokens_out": 174
+}
+
+=== The same request rebuilt from the shared logs volume, from inside the agent container
+$ docker compose exec agent sh -c 'grep -h "trace=62330d2c " /app/logs/*.log | sort'
+2026-09-27 19:21:20,717 INFO agent trace=62330d2c agent_start role=coordinator tools=['check_stock', 'get_delivery_eta', 'plan_delivery_route']
+2026-09-27 19:21:22,600 INFO logistics_mcp trace=62330d2c tool=check_stock item='malaria_kits' county='None' outcome=ok ms=0
+2026-09-27 19:21:23,729 INFO logistics_mcp trace=62330d2c tool=get_delivery_eta from_clinic_id='C01' to_clinic_id='C02' outcome=ok ms=0
+2026-09-27 19:21:23,731 INFO logistics_mcp trace=62330d2c tool=get_delivery_eta from_clinic_id='C01' to_clinic_id='C05' outcome=ok ms=0
+2026-09-27 19:21:25,239 INFO agent trace=62330d2c agent_end status=answered model_calls=3 tokens_in=3224 tokens_out=174
+2026-09-27 19:21:25,239 INFO agent trace=62330d2c step=1 tool_call=check_stock args={"item": "malaria_kits"}
+2026-09-27 19:21:25,239 INFO agent trace=62330d2c step=2 tool_call=get_delivery_eta args={"from_clinic_id": "C01", "to_clinic_id": "C02"}
+2026-09-27 19:21:25,239 INFO agent trace=62330d2c step=3 tool_call=get_delivery_eta args={"from_clinic_id": "C01", "to_clinic_id": "C05"}
+2026-09-27 19:21:25,240 INFO agent_api trace=62330d2c method=POST path=/ask-logistics status=200 ms=5315
+2026-09-27 19:21:25,240 INFO agent_api trace=62330d2c user=mercy role=coordinator outcome=answered ms=5314 question_chars=101 model_calls=3 tokens_in=3224 tokens_out=174 tools=check_stock,get_delivery_eta,get_delivery_eta
+
+=== The triage service accepts a token issued by the agent service (one auth module, one secret)
+$ curl -X POST localhost:8000/triage -H 'Authorization: Bearer <agent-issued token>' -d '{"patient_message": "Fever and headache since yesterday", "county": "Kisii"}'
+{"urgency":"medium","advice":"Please see a clinician within 24 hours for further evaluation.","model_used":"gpt-4o-mini","handled_for":"mercy","request_id":"ab36371a"}
+--> HTTP 200
+
+=== Kill drill, attempt 1: the course's 'docker kill' (Docker Engine 29.x)
+$ docker kill 219002fa215e
+$ docker inspect -f 'status={{.State.Status}} restarts={{.RestartCount}}' 219002fa215e
+status=exited restarts=0
+Result: NOT restarted. Docker treats 'docker kill' as a manual stop, and restart policies are
+ignored for manually stopped containers. So this drill cannot simulate a crash.
+$ docker compose up -d triage
+ Container afyaplus-platform-triage-1 Started 
+
+=== Kill drill, attempt 2: a real crash (the service process dies without Docker being asked)
+$ docker inspect -f 'restarts={{.RestartCount}} started={{.State.StartedAt}}' 219002fa215e
+restarts=0 started=2026-09-27T19:21:34.746418598Z
+$ docker compose exec triage python -c 'import os, signal; os.kill(1, signal.SIGTERM)'
+$ docker inspect -f 'restarts={{.RestartCount}} started={{.State.StartedAt}}' 219002fa215e
+restarts=1 started=2026-09-27T19:21:37.486232588Z
+$ docker compose ps triage
+SERVICE   STATUS
+triage    Up 8 seconds (healthy)
+$ curl localhost:8000/health
+{"service":"triage-api","version":"1.1.0","status":"ok","model_backend":"openai"}
+Result: restarted by the policy without anyone running a command (RestartCount went up, new
+StartedAt). Docker restarts the SAME container in place, so the id is unchanged; Kubernetes
+would create a fresh pod instead.

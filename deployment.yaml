@@ -1,0 +1,90 @@
+# deployment.yaml - READ-ONLY this week: nobody on the cohort has a cluster, and none is claimed.
+# It declares the desired production state; the scaling scenario that goes with it is in
+# docs/ENGINEERING_REPORT.md section 5.
+#
+# Secrets come from a Kubernetes Secret created out-of-band, the cluster's version of --env-file:
+#   kubectl create secret generic afyaplus-secrets \
+#     --from-literal=JWT_SECRET=... --from-literal=OPENAI_API_KEY=...
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triage-api
+  labels: {app: triage-api, version: "1.1.0"}
+spec:
+  replicas: 3                               # stateless service: any copy can serve any request
+  selector:
+    matchLabels: {app: triage-api}
+  template:
+    metadata:
+      labels: {app: triage-api, version: "1.1.0"}
+    spec:
+      containers:
+        - name: triage-api
+          image: afyaplus-triage:1.1.0      # immutable tag = git tag v1.1.0
+          ports:
+            - containerPort: 8000
+          env:
+            - {name: APP_ENV, value: production}
+          envFrom:
+            - secretRef: {name: afyaplus-secrets}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: 500m, memory: 256Mi}
+          readinessProbe:                   # no traffic until /health answers
+            httpGet: {path: /health, port: 8000}
+            periodSeconds: 5
+          livenessProbe:                    # a copy that stops answering is replaced
+            httpGet: {path: /health, port: 8000}
+            initialDelaySeconds: 10
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: triage
+spec:
+  selector: {app: triage-api}
+  ports:
+    - {port: 8000, targetPort: 8000}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-api
+  labels: {app: agent-api, version: "1.1.0"}
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: agent-api}
+  template:
+    metadata:
+      labels: {app: agent-api, version: "1.1.0"}
+    spec:
+      containers:
+        - name: agent-api
+          image: afyaplus-agent:1.1.0
+          ports:
+            - containerPort: 8001
+          env:
+            - {name: APP_ENV, value: production}
+          envFrom:
+            - secretRef: {name: afyaplus-secrets}
+          resources:
+            requests: {cpu: 250m, memory: 384Mi}
+            limits: {cpu: "1", memory: 768Mi}
+          readinessProbe:
+            httpGet: {path: /health, port: 8001}
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /health, port: 8001}
+            initialDelaySeconds: 15
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent
+spec:
+  selector: {app: agent-api}
+  ports:
+    - {port: 8001, targetPort: 8001}
