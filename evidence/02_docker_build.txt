@@ -1,0 +1,251 @@
+$ docker build -t afyaplus-triage:1.0.0 .   (first build, cold cache)
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.38kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.12-slim
+#2 ...
+
+#3 [auth] library/python:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 4.4s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 216B 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 15.07kB 0.0s done
+#5 DONE 0.1s
+
+#6 [1/6] FROM docker.io/library/python:3.12-slim@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f
+#6 resolve docker.io/library/python:3.12-slim@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f 0.0s done
+#6 sha256:06ad939ed42b51caafb25b14810875d14e0ee0c441d3e2e5e46475fb8c150bca 0B / 249B 0.2s
+#6 sha256:06ad939ed42b51caafb25b14810875d14e0ee0c441d3e2e5e46475fb8c150bca 249B / 249B 0.2s done
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 0B / 12.12MB 0.3s
+#6 sha256:3764a9a7d1e8a98213ab2201a41dbf3da9c60240ea35a5ea96ab994555070a70 0B / 1.29MB 0.2s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 0B / 29.83MB 0.2s
+#6 sha256:3764a9a7d1e8a98213ab2201a41dbf3da9c60240ea35a5ea96ab994555070a70 1.05MB / 1.29MB 4.4s
+#6 sha256:3764a9a7d1e8a98213ab2201a41dbf3da9c60240ea35a5ea96ab994555070a70 1.29MB / 1.29MB 5.1s done
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 1.05MB / 12.12MB 5.3s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 1.05MB / 29.83MB 5.3s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 3.15MB / 29.83MB 8.1s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 1.05MB / 12.12MB 10.4s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 2.10MB / 12.12MB 12.8s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 4.19MB / 29.83MB 13.2s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 3.15MB / 12.12MB 16.1s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 4.19MB / 12.12MB 17.7s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 6.29MB / 29.83MB 17.6s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 5.24MB / 12.12MB 18.9s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 6.29MB / 12.12MB 20.0s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 8.39MB / 29.83MB 20.3s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 7.34MB / 12.12MB 21.8s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 8.39MB / 12.12MB 23.3s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 10.49MB / 29.83MB 23.4s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 9.44MB / 12.12MB 24.4s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 10.49MB / 12.12MB 26.8s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 12.58MB / 29.83MB 27.0s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 11.53MB / 12.12MB 27.9s
+#6 sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 12.12MB / 12.12MB 28.4s done
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 14.68MB / 29.83MB 29.7s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 16.78MB / 29.83MB 32.7s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 18.87MB / 29.83MB 35.1s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 20.97MB / 29.83MB 36.0s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 23.07MB / 29.83MB 37.4s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 25.17MB / 29.83MB 38.7s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 27.26MB / 29.83MB 39.8s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 29.36MB / 29.83MB 40.8s
+#6 sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 29.83MB / 29.83MB 40.9s done
+#6 extracting sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8
+#6 extracting sha256:6b37362b3da78869050b894b799ad4df04f1f3b52774087db0d81151570244c8 0.5s done
+#6 DONE 41.6s
+
+#6 [1/6] FROM docker.io/library/python:3.12-slim@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f
+#6 extracting sha256:3764a9a7d1e8a98213ab2201a41dbf3da9c60240ea35a5ea96ab994555070a70 0.1s done
+#6 extracting sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0
+#6 extracting sha256:b0dc7f87bef15c2536cb182d6c48b52f90a0522884ec9eb222f833fa97ffebf0 0.3s done
+#6 DONE 41.9s
+
+#6 [1/6] FROM docker.io/library/python:3.12-slim@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f
+#6 extracting sha256:06ad939ed42b51caafb25b14810875d14e0ee0c441d3e2e5e46475fb8c150bca 0.0s done
+#6 DONE 41.9s
+
+#7 [2/6] WORKDIR /app
+#7 DONE 0.1s
+
+#8 [3/6] COPY requirements.txt .
+#8 DONE 0.0s
+
+#9 [4/6] RUN pip install -r requirements.txt
+#9 1.788 Collecting fastapi==0.141.1 (from -r requirements.txt (line 2))
+#9 2.513   Downloading fastapi-0.141.1-py3-none-any.whl.metadata (27 kB)
+#9 2.729 Collecting uvicorn==0.54.0 (from uvicorn[standard]==0.54.0->-r requirements.txt (line 3))
+#9 2.956   Downloading uvicorn-0.54.0-py3-none-any.whl.metadata (6.6 kB)
+#9 3.713 Collecting pydantic==2.13.5 (from -r requirements.txt (line 4))
+#9 3.912   Downloading pydantic-2.13.5-py3-none-any.whl.metadata (110 kB)
+#9 4.369 Collecting PyJWT==2.15.0 (from -r requirements.txt (line 5))
+#9 4.569   Downloading pyjwt-2.15.0-py3-none-any.whl.metadata (3.5 kB)
+#9 4.800 Collecting bcrypt==5.0.0 (from -r requirements.txt (line 6))
+#9 4.996   Downloading bcrypt-5.0.0-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (10 kB)
+#9 5.174 Collecting python-dotenv==1.2.3 (from -r requirements.txt (line 7))
+#9 5.376   Downloading python_dotenv-1.2.3-py3-none-any.whl.metadata (29 kB)
+#9 5.631 Collecting openai==3.19.2 (from -r requirements.txt (line 8))
+#9 5.825   Downloading openai-3.19.2-py3-none-any.whl.metadata (44 kB)
+#9 6.030 Collecting starlette>=0.46.0 (from fastapi==0.141.1->-r requirements.txt (line 2))
+#9 6.225   Downloading starlette-1.7.0-py3-none-any.whl.metadata (6.6 kB)
+#9 6.410 Collecting typing-extensions>=4.8.0 (from fastapi==0.141.1->-r requirements.txt (line 2))
+#9 6.604   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+#9 6.774 Collecting typing-inspection>=0.4.2 (from fastapi==0.141.1->-r requirements.txt (line 2))
+#9 7.083   Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+#9 7.499 Collecting annotated-doc>=0.0.2 (from fastapi==0.141.1->-r requirements.txt (line 2))
+#9 7.704   Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+#9 7.864 Collecting click>=7.0 (from uvicorn==0.54.0->uvicorn[standard]==0.54.0->-r requirements.txt (line 3))
+#9 8.061   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+#9 8.215 Collecting h11>=0.8 (from uvicorn==0.54.0->uvicorn[standard]==0.54.0->-r requirements.txt (line 3))
+#9 8.409   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#9 8.616 Collecting annotated-types>=0.6.0 (from pydantic==2.13.5->-r requirements.txt (line 4))
+#9 8.813   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+#9 10.35 Collecting pydantic-core==2.46.5 (from pydantic==2.13.5->-r requirements.txt (line 4))
+#9 10.56   Downloading pydantic_core-2.46.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+#9 10.73 Collecting anyio<5,>=4.10.0 (from openai==3.19.2->-r requirements.txt (line 8))
+#9 10.98   Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+#9 11.27 Collecting httpx2<3,>=2.12.0 (from openai==3.19.2->-r requirements.txt (line 8))
+#9 11.69   Downloading httpx2-2.13.1-py3-none-any.whl.metadata (9.8 kB)
+#9 11.99 Collecting jiter<1,>=0.16.0 (from openai==3.19.2->-r requirements.txt (line 8))
+#9 12.20   Downloading jiter-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.2 kB)
+#9 12.35 Collecting sniffio (from openai==3.19.2->-r requirements.txt (line 8))
+#9 12.55   Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+#9 12.74 Collecting httptools>=0.8.0 (from uvicorn[standard]==0.54.0->-r requirements.txt (line 3))
+#9 12.94   Downloading httptools-0.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
+#9 13.14 Collecting pyyaml>=5.1 (from uvicorn[standard]==0.54.0->-r requirements.txt (line 3))
+#9 13.35   Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+#9 13.54 Collecting uvloop>=0.15.1 (from uvicorn[standard]==0.54.0->-r requirements.txt (line 3))
+#9 13.74   Downloading uvloop-0.22.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (4.9 kB)
+#9 13.98 Collecting watchfiles>=0.20 (from uvicorn[standard]==0.54.0->-r requirements.txt (line 3))
+#9 14.18   Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+#9 14.46 Collecting websockets>=13.0 (from uvicorn[standard]==0.54.0->-r requirements.txt (line 3))
+#9 14.68   Downloading websockets-17.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.3 kB)
+#9 14.87 Collecting idna>=2.8 (from anyio<5,>=4.10.0->openai==3.19.2->-r requirements.txt (line 8))
+#9 15.24   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+#9 15.44 Collecting httpcore2==2.13.1 (from httpx2<3,>=2.12.0->openai==3.19.2->-r requirements.txt (line 8))
+#9 15.64   Downloading httpcore2-2.13.1-py3-none-any.whl.metadata (26 kB)
+#9 15.81 Collecting truststore>=0.10 (from httpx2<3,>=2.12.0->openai==3.19.2->-r requirements.txt (line 8))
+#9 16.00   Downloading truststore-0.10.4-py3-none-any.whl.metadata (4.4 kB)
+#9 16.23 Downloading fastapi-0.141.1-py3-none-any.whl (131 kB)
+#9 16.62 Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+#9 16.84 Downloading pydantic-2.13.5-py3-none-any.whl (472 kB)
+#9 17.31 Downloading pyjwt-2.15.0-py3-none-any.whl (33 kB)
+#9 17.51 Downloading bcrypt-5.0.0-cp39-abi3-manylinux_2_34_x86_64.whl (278 kB)
+#9 17.80 Downloading python_dotenv-1.2.3-py3-none-any.whl (22 kB)
+#9 18.00 Downloading openai-3.19.2-py3-none-any.whl (2.1 MB)
+#9 19.02    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 1.9 MB/s eta 0:00:00
+#9 19.32 Downloading pydantic_core-2.46.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+#9 20.15    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 2.7 MB/s eta 0:00:00
+#9 20.34 Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+#9 20.54 Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+#9 20.74 Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+#9 20.98 Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#9 21.24 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#9 21.44 Downloading httptools-0.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (523 kB)
+#9 21.80 Downloading httpx2-2.13.1-py3-none-any.whl (95 kB)
+#9 22.70 Downloading httpcore2-2.13.1-py3-none-any.whl (83 kB)
+#9 22.98 Downloading jiter-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (345 kB)
+#9 24.90 Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+#9 26.12    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 1.6 MB/s eta 0:00:00
+#9 26.33 Downloading starlette-1.7.0-py3-none-any.whl (78 kB)
+#9 27.11 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#9 27.46 Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+#9 27.78 Downloading uvloop-0.22.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.4 MB)
+#9 32.40    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.4/4.4 MB 957.4 kB/s eta 0:00:00
+#9 32.61 Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (458 kB)
+#9 33.14 Downloading websockets-17.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (224 kB)
+#9 33.55 Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+#9 33.75 Downloading idna-3.20-py3-none-any.whl (69 kB)
+#9 34.06 Downloading truststore-0.10.4-py3-none-any.whl (18 kB)
+#9 34.14 Installing collected packages: websockets, uvloop, typing-extensions, truststore, sniffio, pyyaml, python-dotenv, PyJWT, jiter, idna, httptools, h11, click, bcrypt, annotated-types, annotated-doc, uvicorn, typing-inspection, pydantic-core, httpcore2, anyio, watchfiles, starlette, pydantic, httpx2, openai, fastapi
+#9 36.34 Successfully installed PyJWT-2.15.0 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 bcrypt-5.0.0 click-8.5.0 fastapi-0.141.1 h11-0.16.0 httpcore2-2.13.1 httptools-0.8.0 httpx2-2.13.1 idna-3.20 jiter-0.17.0 openai-3.19.2 pydantic-2.13.5 pydantic-core-2.46.5 python-dotenv-1.2.3 pyyaml-6.0.3 sniffio-1.3.1 starlette-1.7.0 truststore-0.10.4 typing-extensions-4.16.0 typing-inspection-0.4.4 uvicorn-0.54.0 uvloop-0.22.1 watchfiles-1.3.0 websockets-17.1
+#9 36.34 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#9 DONE 36.5s
+
+#10 [5/6] RUN useradd --create-home --uid 10001 afya && mkdir -p /app/logs && chown afya /app/logs
+#10 DONE 0.2s
+
+#11 [6/6] COPY config.py auth.py rate_limit.py triage_model.py triage_api.py ./
+#11 DONE 0.0s
+
+#12 exporting to image
+#12 exporting layers
+#12 exporting layers 1.7s done
+#12 exporting manifest sha256:c6caf0a4274ccf3576f3081ff9761aa6a19f9257b494e94b028ef4f4f60b0f75 done
+#12 exporting config sha256:b8000768ce60c63aa0885e09f65427f2bb09f900baf1d0ac94740f191ed14306 done
+#12 exporting attestation manifest sha256:94fc07eb96eecbc93fc39f4b9c0c24bbbd62f704ddc5fb6a4e20ea740c3cd986 0.0s done
+#12 exporting manifest list sha256:bbbd827a535e401b1f5db706fb07ebb28055ac227d70b7bcf065eec15bcd561e done
+#12 naming to docker.io/library/afyaplus-triage:1.0.0 done
+#12 unpacking to docker.io/library/afyaplus-triage:1.0.0
+#12 unpacking to docker.io/library/afyaplus-triage:1.0.0 0.7s done
+#12 DONE 2.4s
+
+real	1m31.819s
+user	0m0.030s
+sys	0m0.030s
+
+==================================================================
+$ docker build -t afyaplus-triage:1.0.0 .   (second build, nothing changed)
+#1 [internal] load build definition from Dockerfile
+#1 DONE 0.0s
+#2 [internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 1.2s
+#3 [internal] load .dockerignore
+#3 DONE 0.0s
+#4 [internal] load build context
+#4 DONE 0.0s
+#5 [1/6] FROM docker.io/library/python:3.12-slim@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f
+#5 DONE 0.0s
+#6 [2/6] WORKDIR /app
+#6 CACHED
+#7 [3/6] COPY requirements.txt .
+#7 CACHED
+#8 [4/6] RUN pip install -r requirements.txt
+#8 CACHED
+#9 [5/6] RUN useradd --create-home --uid 10001 afya && mkdir -p /app/logs && chown afya /app/logs
+#9 CACHED
+#10 [6/6] COPY config.py auth.py rate_limit.py triage_model.py triage_api.py ./
+#10 CACHED
+#11 DONE 0.1s
+
+real	0m1.863s
+user	0m0.030s
+sys	0m0.030s
+
+==================================================================
+Code-only change (one comment line appended to triage_api.py, reverted afterwards):
+$ docker build -t afyaplus-triage:cache-test .
+#1 [internal] load build definition from Dockerfile
+#1 DONE 0.0s
+#2 [internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 0.3s
+#3 [internal] load .dockerignore
+#3 DONE 0.0s
+#4 [internal] load build context
+#4 DONE 0.0s
+#5 [1/6] FROM docker.io/library/python:3.12-slim@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f
+#5 DONE 0.0s
+#6 [3/6] COPY requirements.txt .
+#6 CACHED
+#7 [2/6] WORKDIR /app
+#7 CACHED
+#8 [4/6] RUN pip install -r requirements.txt
+#8 CACHED
+#9 [5/6] RUN useradd --create-home --uid 10001 afya && mkdir -p /app/logs && chown afya /app/logs
+#9 CACHED
+#10 [6/6] COPY config.py auth.py rate_limit.py triage_model.py triage_api.py ./
+#10 DONE 0.1s
+#11 DONE 0.1s
+
+real	0m1.150s
+user	0m0.060s
+sys	0m0.076s
