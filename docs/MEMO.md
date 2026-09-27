@@ -13,7 +13,7 @@ Olu's laptop scripts are now three services that anyone on the team can run with
 Both services ship as versioned containers. Every answer carries a trace id, so one search shows what was asked, which data was used and what it cost. Running the whole build and all its tests cost under $0.01 in model fees.
 
 ## Highest-value component: the logistics assistant, because of its guardrails
-The assistant turns a 15-minute spreadsheet-and-map task into a 5-second answer. What makes it deployable in a health setting is its limits, not its intelligence:
+The assistant answers a stock-plus-route question in about 5 seconds, a job that today means cross-checking a spreadsheet and a map by hand (the pilot will measure the time saved). What makes it deployable in a health setting is its limits, not its intelligence:
 - It answers only from tool data, and says so when data is missing: *"I do not have access to pricing information."*
 - It can **recommend** a reorder, but nothing moves until a coordinator presses confirm. A double-click or network retry cannot order twice.
 - Viewers get stock look-ups only. Every step is traceable after the fact.
