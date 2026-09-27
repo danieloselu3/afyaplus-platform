@@ -1,0 +1,79 @@
+# Deliverable 2 runtime evidence - 2026-09-27T19:06:46Z
+
+=== Image tag matches git tag
+$ git tag -n1 v1.0.0
+v1.0.0          v1.0.0: first containerised release of the secured triage API (image afyaplus-triage:1.0.0)
+$ git rev-list -n1 v1.0.0
+f57012bd74961c8cab134b4b73f5a806fa3cec2e
+
+=== Image size
+$ docker images afyaplus-triage
+REPOSITORY        TAG       IMAGE ID       SIZE
+afyaplus-triage   1.0.0     f87b11fd7c69   266MB
+$ docker image inspect afyaplus-triage:1.0.0 --format '{{.Size}}'  (bytes, compressed layers)
+59356285
+
+=== Run with secrets injected at start time
+$ docker run -d --rm --name triage-v1 -p 8000:8000 --env-file .env afyaplus-triage:1.0.0
+$ docker ps --filter name=triage-v1
+IMAGE                   STATUS                            PORTS
+afyaplus-triage:1.0.0   Up 2 seconds (health: starting)   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+$ curl http://127.0.0.1:8000/health
+{"service":"triage-api","version":"1.0.0","status":"ok","model_backend":"openai"}
+$ curl -X POST http://127.0.0.1:8000/triage -H 'Authorization: Bearer <token>' -d '{"patient_message": "My baby has diarrhoea since morning", "county": "Homa Bay"}'
+{"urgency":"medium","advice":"Please ensure your baby stays hydrated and monitor for any signs of dehydration. It is advisable to see a clinician within 24 hours.","model_used":"gpt-4o-mini","handled_for":"mercy","request_id":"7c4d7141"}
+--> HTTP 200
+$ curl -X POST http://127.0.0.1:8000/triage  (no token)
+{"detail":"Not authenticated. Log in at /token and send 'Authorization: Bearer <token>'."}
+--> HTTP 401
+$ docker logs triage-v1 | tail -4
+2026-09-27 19:06:49,407 INFO triage_api request_id=7c4d7141 method=POST path=/triage status=200 ms=2099
+2026-09-27 19:06:49,408 INFO audit request_id=7c4d7141 user=mercy county=Homa Bay urgency=medium
+2026-09-27 19:06:49,480 INFO triage_api request_id=dab2b188 method=POST path=/triage status=401 ms=1
+INFO:     172.17.0.1:57832 - "POST /triage HTTP/1.1" 401 Unauthorized
+
+=== 1. Fresh container WITHOUT --env-file: environment and files
+$ docker run --rm --entrypoint sh afyaplus-triage:1.0.0 -c 'env | sort; ls -la /app'
+APP_ENV=production
+GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305
+HOME=/home/afya
+HOSTNAME=0304044ed272
+LANG=C.UTF-8
+LOG_DIR=/app/logs
+PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PIP_DISABLE_PIP_VERSION_CHECK=1
+PIP_NO_CACHE_DIR=1
+PWD=/app
+PYTHONDONTWRITEBYTECODE=1
+PYTHONUNBUFFERED=1
+PYTHON_SHA256=5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a
+PYTHON_VERSION=3.12.14
+
+total 40
+drwxr-xr-x 1 root root 4096 Sep 27 19:06 .
+drwxr-xr-x 1 root root 4096 Sep 27 19:06 ..
+-rwxr-xr-x 1 root root 3624 Sep 27 19:04 auth.py
+-rwxr-xr-x 1 root root 1188 Sep 27 19:04 config.py
+drwxr-xr-x 2 afya root 4096 Sep 27 19:06 logs
+-rwxr-xr-x 1 root root  981 Sep 27 19:04 rate_limit.py
+-rwxr-xr-x 1 root root  190 Sep 27 19:04 requirements.txt
+-rwxr-xr-x 1 root root 5124 Sep 27 19:04 triage_api.py
+-rwxr-xr-x 1 root root 3709 Sep 27 19:04 triage_model.py
+
+$ ... | grep -c -E 'JWT_SECRET|OPENAI_API_KEY'   (0 = absent)
+0
+
+=== 2. Same image started normally WITHOUT secrets: it refuses to boot (APP_ENV=production)
+$ docker run --rm afyaplus-triage:1.0.0
+  File "/app/auth.py", line 24, in <module>
+    raise RuntimeError("JWT_SECRET is not set. Inject it at runtime with --env-file.")
+RuntimeError: JWT_SECRET is not set. Inject it at runtime with --env-file.
+
+=== 3. WITH --env-file .env: secrets present only at runtime (values masked)
+$ docker run --rm --env-file .env --entrypoint sh afyaplus-triage:1.0.0 -c 'env | grep ...'
+OPENAI_API_KEY=<present, value masked>
+JWT_SECRET=<present, value masked>
+
+=== 4. Image history: no layer mentions the secret
+$ docker history --no-trunc afyaplus-triage:1.0.0 | grep -c -E 'JWT_SECRET=|OPENAI_API_KEY='   (0 = absent)
+0

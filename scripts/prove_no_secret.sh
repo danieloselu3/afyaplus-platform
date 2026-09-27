@@ -16,7 +16,7 @@ docker run --rm "$IMAGE" 2>&1 | tail -3
 echo
 echo "=== 3. WITH --env-file .env: secrets present only at runtime (values masked)"
 echo "\$ docker run --rm --env-file .env --entrypoint sh $IMAGE -c 'env | grep ...'"
-docker run --rm --env-file .env --entrypoint sh "$IMAGE" -c 'env | grep -E "JWT_SECRET|OPENAI_API_KEY"' | sed -E 's/=(.{4}).*/=\1****(masked)/'
+docker run --rm --env-file .env --entrypoint sh "$IMAGE" -c 'env | grep -E "JWT_SECRET|OPENAI_API_KEY"' | sed -E 's/=.*/=<present, value masked>/'
 echo
 echo "=== 4. Image history: no layer mentions the secret"
 echo "\$ docker history --no-trunc $IMAGE | grep -c -E 'JWT_SECRET=|OPENAI_API_KEY='   (0 = absent)"
