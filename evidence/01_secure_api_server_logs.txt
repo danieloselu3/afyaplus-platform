@@ -1,0 +1,38 @@
+# Server-side log lines for the evidence run above
+## logs/triage_api.log
+2026-09-27 22:03:25,907 INFO triage_api request_id=3df77f0a method=GET path=/health status=200 ms=2
+2026-09-27 22:03:26,090 INFO triage_api request_id=eb3e1d30 method=GET path=/health status=200 ms=1
+2026-09-27 22:03:26,434 INFO triage_api request_id=4d9edf9a method=POST path=/token status=200 ms=232
+2026-09-27 22:03:26,737 INFO triage_api request_id=6a038b82 method=POST path=/token status=200 ms=234
+2026-09-27 22:03:27,063 INFO triage_api request_id=a99cbe24 method=POST path=/token status=200 ms=226
+2026-09-27 22:03:30,753 INFO triage_api request_id=10046b61 model=gpt-4o-mini tokens_in=125 tokens_out=23
+2026-09-27 22:03:30,756 INFO triage_api request_id=10046b61 method=POST path=/triage status=200 ms=3566
+2026-09-27 22:03:32,040 INFO triage_api request_id=28652bc3 model=gpt-4o-mini tokens_in=133 tokens_out=40
+2026-09-27 22:03:32,041 INFO triage_api request_id=28652bc3 method=POST path=/triage status=200 ms=1158
+2026-09-27 22:03:32,176 INFO triage_api request_id=7daee15b method=POST path=/triage status=401 ms=0
+2026-09-27 22:03:32,304 INFO triage_api request_id=f8b8296f method=POST path=/triage status=401 ms=1
+2026-09-27 22:03:32,639 WARNING triage_api login_failed user=mercy client=127.0.0.1
+2026-09-27 22:03:32,640 INFO triage_api request_id=e6e117e2 method=POST path=/token status=401 ms=227
+2026-09-27 22:03:32,769 INFO triage_api request_id=c42dbaed method=POST path=/triage status=403 ms=2
+2026-09-27 22:03:32,919 INFO triage_api request_id=660e5812 method=POST path=/triage status=422 ms=4
+2026-09-27 22:03:33,056 INFO triage_api request_id=a812626d method=POST path=/triage status=422 ms=2
+2026-09-27 22:03:33,213 INFO triage_api request_id=ad0df055 method=POST path=/triage status=422 ms=1
+2026-09-27 22:03:33,344 INFO triage_api request_id=02d9d239 method=POST path=/triage status=422 ms=1
+2026-09-27 22:03:34,341 INFO triage_api request_id=ea7b5d77 model=gpt-4o-mini tokens_in=124 tokens_out=24
+2026-09-27 22:03:34,343 INFO triage_api request_id=ea7b5d77 method=POST path=/triage status=200 ms=914
+2026-09-27 22:03:35,498 INFO triage_api request_id=567d4d97 model=gpt-4o-mini tokens_in=124 tokens_out=24
+2026-09-27 22:03:35,500 INFO triage_api request_id=567d4d97 method=POST path=/triage status=200 ms=1094
+2026-09-27 22:03:36,434 INFO triage_api request_id=addfd0b9 model=gpt-4o-mini tokens_in=124 tokens_out=24
+2026-09-27 22:03:36,436 INFO triage_api request_id=addfd0b9 method=POST path=/triage status=200 ms=850
+2026-09-27 22:03:36,495 INFO triage_api request_id=830e3b14 method=POST path=/triage status=429 ms=1
+2026-09-27 22:03:36,583 INFO triage_api request_id=563b5798 method=POST path=/triage status=429 ms=1
+
+## logs/audit.log (metadata only, never message text)
+2026-09-27 22:03:30,758 INFO audit request_id=10046b61 user=mercy county=Kisumu urgency=high
+2026-09-27 22:03:32,043 INFO audit request_id=28652bc3 user=mercy county=Vihiga urgency=low
+2026-09-27 22:03:34,344 INFO audit request_id=ea7b5d77 user=mercy county=Kisii urgency=low
+2026-09-27 22:03:35,501 INFO audit request_id=567d4d97 user=mercy county=Kisii urgency=low
+2026-09-27 22:03:36,437 INFO audit request_id=addfd0b9 user=mercy county=Kisii urgency=low
+
+## 503 copy: model error line
+2026-09-27 22:03:52,481 ERROR triage_api request_id=9d91d9f9 model_error=AuthenticationError
