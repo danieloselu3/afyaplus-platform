@@ -1,0 +1,323 @@
+# Deliverable 3: MCP Inspector (CLI mode) transcript - 2026-09-27T19:10:41Z
+# Same server, same protocol an agent uses. Invalid calls come back as data, and the server stays up.
+
+## Discovery
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method tools/list
+{
+  "tools": [
+    {
+      "name": "check_stock",
+      "description": "Report how many UNITS of one medical item each AfyaPlus clinic has on hand.\n\n    Args:\n        item: one of \"amoxicillin\", \"ors_sachets\", \"malaria_kits\" (exact names).\n        county: optional county filter, e.g. \"Kisumu\". Omit for all clinics.\n\n    Returns JSON {\"item\", \"reorder_threshold\", \"stock\": [{\"clinic_id\", \"clinic\",\n    \"county\", \"units\", \"reorder_needed\"}]}. reorder_needed is true when units < 10.\n    Counts are units on hand only: this data has NO prices, costs, suppliers,\n    expiry dates, consumption history or staff information.\n    Unknown item or county returns {\"error\": ..., \"valid_values\": [...]}.\n    ",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "title": "Item",
+            "type": "string"
+          },
+          "county": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "County"
+          }
+        },
+        "required": [
+          "item"
+        ],
+        "title": "check_stockArguments"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "check_stockOutput"
+      }
+    },
+    {
+      "name": "plan_delivery_route",
+      "description": "Plan a delivery route that starts at one clinic and visits the other stops.\n\n    Uses the nearest-neighbour rule (always drive to the closest unvisited stop next)\n    on straight-line distances. This is quick decision support, NOT a guaranteed-\n    shortest route and NOT road distance.\n\n    Args:\n        start_clinic_id: clinic id where the driver starts, e.g. \"C01\".\n        stop_clinic_ids: optional list of clinic ids to visit, e.g. [\"C02\", \"C04\"].\n            Omit to visit every clinic. The start clinic is ignored if repeated here.\n\n    Returns JSON {\"route\": [{\"clinic_id\", \"clinic\", \"leg_km\"}], \"total_km\", \"method\"}.\n    Unknown ids return {\"error\": ..., \"valid_values\": [...]}.\n    ",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start_clinic_id": {
+            "title": "Start Clinic Id",
+            "type": "string"
+          },
+          "stop_clinic_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Stop Clinic Ids"
+          }
+        },
+        "required": [
+          "start_clinic_id"
+        ],
+        "title": "plan_delivery_routeArguments"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "plan_delivery_routeOutput"
+      }
+    },
+    {
+      "name": "get_delivery_eta",
+      "description": "Estimate distance and driving time between two clinics.\n\n    Straight-line kilometres at an ASSUMED average of 40 km/h on regional roads,\n    rounded to the nearest 5 minutes. A planning estimate, not a commitment:\n    weather, road class and traffic are not modelled.\n\n    Args:\n        from_clinic_id: clinic id, e.g. \"C01\".\n        to_clinic_id: a different clinic id, e.g. \"C04\".\n\n    Returns JSON {\"from\", \"to\", \"distance_km\", \"eta_minutes\", \"assumed_speed_kmh\"}.\n    Unknown or identical ids return {\"error\": ...}.\n    ",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from_clinic_id": {
+            "title": "From Clinic Id",
+            "type": "string"
+          },
+          "to_clinic_id": {
+            "title": "To Clinic Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_clinic_id",
+          "to_clinic_id"
+        ],
+        "title": "get_delivery_etaArguments"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "get_delivery_etaOutput"
+      }
+    }
+  ]
+}
+
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method resources/list
+{
+  "resources": [
+    {
+      "name": "clinic_directory",
+      "uri": "clinics://directory",
+      "description": "Read-only directory of all AfyaPlus partner clinics: id, name, county.",
+      "mimeType": "application/json"
+    }
+  ]
+}
+
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method resources/templates/list
+{
+  "resourceTemplates": [
+    {
+      "name": "clinic_record",
+      "uriTemplate": "clinics://{clinic_id}",
+      "description": "Full read-only record for one clinic: coordinates and stock units.",
+      "mimeType": "application/json"
+    }
+  ]
+}
+
+## Resources
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method resources/read --uri clinics://directory
+2026-09-27 22:10:51,673 INFO logistics_mcp trace=inspect01 tool=clinic_directory  outcome=ok ms=0
+{
+  "contents": [
+    {
+      "uri": "clinics://directory",
+      "mimeType": "application/json",
+      "text": "[{\"id\": \"C01\", \"name\": \"Kisumu Central Clinic\", \"county\": \"Kisumu\"}, {\"id\": \"C02\", \"name\": \"Vihiga Health Post\", \"county\": \"Vihiga\"}, {\"id\": \"C03\", \"name\": \"Kisii Family Clinic\", \"county\": \"Kisii\"}, {\"id\": \"C04\", \"name\": \"Homa Bay Lakeside Clinic\", \"county\": \"Homa Bay\"}, {\"id\": \"C05\", \"name\": \"Kisumu West Dispensary\", \"county\": \"Kisumu\"}]"
+    }
+  ]
+}
+
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method resources/read --uri clinics://C04
+2026-09-27 22:10:54,008 INFO logistics_mcp trace=inspect01 tool=clinic_record clinic_id='C04' outcome=ok ms=0
+{
+  "contents": [
+    {
+      "uri": "clinics://C04",
+      "mimeType": "application/json",
+      "text": "{\"id\": \"C04\", \"name\": \"Homa Bay Lakeside Clinic\", \"county\": \"Homa Bay\", \"lat\": -0.5273, \"lon\": 34.4571, \"stock\": {\"amoxicillin\": 0, \"ors_sachets\": 5, \"malaria_kits\": 33}}"
+    }
+  ]
+}
+
+## Valid tool calls
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method tools/call --tool-name check_stock --tool-arg item=amoxicillin
+2026-09-27 22:10:56,510 INFO logistics_mcp trace=inspect01 tool=check_stock item='amoxicillin' county='None' outcome=ok ms=0
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"item\": \"amoxicillin\", \"reorder_threshold\": 10, \"stock\": [{\"clinic_id\": \"C01\", \"clinic\": \"Kisumu Central Clinic\", \"county\": \"Kisumu\", \"units\": 40, \"reorder_needed\": false}, {\"clinic_id\": \"C02\", \"clinic\": \"Vihiga Health Post\", \"county\": \"Vihiga\", \"units\": 8, \"reorder_needed\": true}, {\"clinic_id\": \"C03\", \"clinic\": \"Kisii Family Clinic\", \"county\": \"Kisii\", \"units\": 75, \"reorder_needed\": false}, {\"clinic_id\": \"C04\", \"clinic\": \"Homa Bay Lakeside Clinic\", \"county\": \"Homa Bay\", \"units\": 0, \"reorder_needed\": true}, {\"clinic_id\": \"C05\", \"clinic\": \"Kisumu West Dispensary\", \"county\": \"Kisumu\", \"units\": 22, \"reorder_needed\": false}]}"
+    }
+  ],
+  "structuredContent": {
+    "result": "{\"item\": \"amoxicillin\", \"reorder_threshold\": 10, \"stock\": [{\"clinic_id\": \"C01\", \"clinic\": \"Kisumu Central Clinic\", \"county\": \"Kisumu\", \"units\": 40, \"reorder_needed\": false}, {\"clinic_id\": \"C02\", \"clinic\": \"Vihiga Health Post\", \"county\": \"Vihiga\", \"units\": 8, \"reorder_needed\": true}, {\"clinic_id\": \"C03\", \"clinic\": \"Kisii Family Clinic\", \"county\": \"Kisii\", \"units\": 75, \"reorder_needed\": false}, {\"clinic_id\": \"C04\", \"clinic\": \"Homa Bay Lakeside Clinic\", \"county\": \"Homa Bay\", \"units\": 0, \"reorder_needed\": true}, {\"clinic_id\": \"C05\", \"clinic\": \"Kisumu West Dispensary\", \"county\": \"Kisumu\", \"units\": 22, \"reorder_needed\": false}]}"
+  },
+  "isError": false
+}
+
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method tools/call --tool-name plan_delivery_route --tool-arg start_clinic_id=C01
+2026-09-27 22:11:00,758 INFO logistics_mcp trace=inspect01 tool=plan_delivery_route start_clinic_id='C01' stop_clinic_ids='None' outcome=ok ms=0
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"route\": [{\"clinic_id\": \"C01\", \"clinic\": \"Kisumu Central Clinic\", \"leg_km\": 0.0}, {\"clinic_id\": \"C05\", \"clinic\": \"Kisumu West Dispensary\", \"leg_km\": 8.8}, {\"clinic_id\": \"C02\", \"clinic\": \"Vihiga Health Post\", \"leg_km\": 17.5}, {\"clinic_id\": \"C04\", \"clinic\": \"Homa Bay Lakeside Clinic\", \"leg_km\": 70.4}, {\"clinic_id\": \"C03\", \"clinic\": \"Kisii Family Clinic\", \"leg_km\": 38.4}], \"total_km\": 135.1, \"method\": \"nearest-neighbour heuristic on straight-line distance\"}"
+    }
+  ],
+  "structuredContent": {
+    "result": "{\"route\": [{\"clinic_id\": \"C01\", \"clinic\": \"Kisumu Central Clinic\", \"leg_km\": 0.0}, {\"clinic_id\": \"C05\", \"clinic\": \"Kisumu West Dispensary\", \"leg_km\": 8.8}, {\"clinic_id\": \"C02\", \"clinic\": \"Vihiga Health Post\", \"leg_km\": 17.5}, {\"clinic_id\": \"C04\", \"clinic\": \"Homa Bay Lakeside Clinic\", \"leg_km\": 70.4}, {\"clinic_id\": \"C03\", \"clinic\": \"Kisii Family Clinic\", \"leg_km\": 38.4}], \"total_km\": 135.1, \"method\": \"nearest-neighbour heuristic on straight-line distance\"}"
+  },
+  "isError": false
+}
+
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method tools/call --tool-name get_delivery_eta --tool-arg from_clinic_id=C01 --tool-arg to_clinic_id=C04
+2026-09-27 22:11:03,161 INFO logistics_mcp trace=inspect01 tool=get_delivery_eta from_clinic_id='C01' to_clinic_id='C04' outcome=ok ms=0
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"from\": \"Kisumu Central Clinic\", \"to\": \"Homa Bay Lakeside Clinic\", \"distance_km\": 59.3, \"eta_minutes\": 90, \"assumed_speed_kmh\": 40}"
+    }
+  ],
+  "structuredContent": {
+    "result": "{\"from\": \"Kisumu Central Clinic\", \"to\": \"Homa Bay Lakeside Clinic\", \"distance_km\": 59.3, \"eta_minutes\": 90, \"assumed_speed_kmh\": 40}"
+  },
+  "isError": false
+}
+
+## Deliberately INVALID calls
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method tools/call --tool-name check_stock --tool-arg item=bandages
+2026-09-27 22:11:05,430 INFO logistics_mcp trace=inspect01 tool=check_stock item='bandages' county='None' outcome=error ms=0
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"error\": \"Unknown item 'bandages'.\", \"valid_values\": [\"amoxicillin\", \"ors_sachets\", \"malaria_kits\"]}"
+    }
+  ],
+  "structuredContent": {
+    "result": "{\"error\": \"Unknown item 'bandages'.\", \"valid_values\": [\"amoxicillin\", \"ors_sachets\", \"malaria_kits\"]}"
+  },
+  "isError": false
+}
+
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method tools/call --tool-name plan_delivery_route --tool-arg start_clinic_id=C99
+2026-09-27 22:11:07,837 INFO logistics_mcp trace=inspect01 tool=plan_delivery_route start_clinic_id='C99' stop_clinic_ids='None' outcome=error ms=0
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"error\": \"Unknown clinic id 'C99'.\", \"valid_values\": [\"C01\", \"C02\", \"C03\", \"C04\", \"C05\"]}"
+    }
+  ],
+  "structuredContent": {
+    "result": "{\"error\": \"Unknown clinic id 'C99'.\", \"valid_values\": [\"C01\", \"C02\", \"C03\", \"C04\", \"C05\"]}"
+  },
+  "isError": false
+}
+
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method tools/call --tool-name get_delivery_eta --tool-arg from_clinic_id=C01 --tool-arg to_clinic_id=airport
+2026-09-27 22:11:10,116 INFO logistics_mcp trace=inspect01 tool=get_delivery_eta from_clinic_id='C01' to_clinic_id='airport' outcome=error ms=0
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"error\": \"Unknown clinic id 'airport'. Only clinics can be routed between.\", \"valid_values\": [\"C01\", \"C02\", \"C03\", \"C04\", \"C05\"]}"
+    }
+  ],
+  "structuredContent": {
+    "result": "{\"error\": \"Unknown clinic id 'airport'. Only clinics can be routed between.\", \"valid_values\": [\"C01\", \"C02\", \"C03\", \"C04\", \"C05\"]}"
+  },
+  "isError": false
+}
+
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method tools/call --tool-name check_stock --tool-arg item=amoxicillin --tool-arg county=Nairobi
+2026-09-27 22:11:12,372 INFO logistics_mcp trace=inspect01 tool=check_stock item='amoxicillin' county='Nairobi' outcome=error ms=0
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"error\": \"Unknown county 'Nairobi'.\", \"valid_values\": [\"Homa Bay\", \"Kisii\", \"Kisumu\", \"Vihiga\"]}"
+    }
+  ],
+  "structuredContent": {
+    "result": "{\"error\": \"Unknown county 'Nairobi'.\", \"valid_values\": [\"Homa Bay\", \"Kisii\", \"Kisumu\", \"Vihiga\"]}"
+  },
+  "isError": false
+}
+
+==================================================================
+$ npx @modelcontextprotocol/inspector --cli python logistics_mcp.py -e TRACE_ID=inspect01 --method tools/call --tool-name get_delivery_eta --tool-arg from_clinic_id=C01
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Error executing tool get_delivery_eta: 1 validation error for get_delivery_etaArguments\nto_clinic_id\n  Field required [type=missing, input_value={'from_clinic_id': 'C01'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+    }
+  ],
+  "isError": true
+}
+{"error":{"code":"tool_is_error","message":"Tool 'get_delivery_eta' returned isError:true."}}
+
+## Server log: one line per call (logs/mcp_server.log, trace=inspect01)
+2026-09-27 22:10:51,673 INFO logistics_mcp trace=inspect01 tool=clinic_directory  outcome=ok ms=0
+2026-09-27 22:10:54,008 INFO logistics_mcp trace=inspect01 tool=clinic_record clinic_id='C04' outcome=ok ms=0
+2026-09-27 22:10:56,510 INFO logistics_mcp trace=inspect01 tool=check_stock item='amoxicillin' county='None' outcome=ok ms=0
+2026-09-27 22:11:00,758 INFO logistics_mcp trace=inspect01 tool=plan_delivery_route start_clinic_id='C01' stop_clinic_ids='None' outcome=ok ms=0
+2026-09-27 22:11:03,161 INFO logistics_mcp trace=inspect01 tool=get_delivery_eta from_clinic_id='C01' to_clinic_id='C04' outcome=ok ms=0
+2026-09-27 22:11:05,430 INFO logistics_mcp trace=inspect01 tool=check_stock item='bandages' county='None' outcome=error ms=0
+2026-09-27 22:11:07,837 INFO logistics_mcp trace=inspect01 tool=plan_delivery_route start_clinic_id='C99' stop_clinic_ids='None' outcome=error ms=0
+2026-09-27 22:11:10,116 INFO logistics_mcp trace=inspect01 tool=get_delivery_eta from_clinic_id='C01' to_clinic_id='airport' outcome=error ms=0
+2026-09-27 22:11:12,372 INFO logistics_mcp trace=inspect01 tool=check_stock item='amoxicillin' county='Nairobi' outcome=error ms=0
