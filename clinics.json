@@ -1,0 +1,14 @@
+{
+  "clinics": [
+    {"id": "C01", "name": "Kisumu Central Clinic", "county": "Kisumu", "lat": -0.0917, "lon": 34.7680,
+     "stock": {"amoxicillin": 40, "ors_sachets": 12, "malaria_kits": 55}},
+    {"id": "C02", "name": "Vihiga Health Post", "county": "Vihiga", "lat": 0.0504, "lon": 34.7223,
+     "stock": {"amoxicillin": 8, "ors_sachets": 90, "malaria_kits": 6}},
+    {"id": "C03", "name": "Kisii Family Clinic", "county": "Kisii", "lat": -0.6817, "lon": 34.7666,
+     "stock": {"amoxicillin": 75, "ors_sachets": 30, "malaria_kits": 20}},
+    {"id": "C04", "name": "Homa Bay Lakeside Clinic", "county": "Homa Bay", "lat": -0.5273, "lon": 34.4571,
+     "stock": {"amoxicillin": 0, "ors_sachets": 5, "malaria_kits": 33}},
+    {"id": "C05", "name": "Kisumu West Dispensary", "county": "Kisumu", "lat": -0.1044, "lon": 34.6900,
+     "stock": {"amoxicillin": 22, "ors_sachets": 60, "malaria_kits": 0}}
+  ]
+}
