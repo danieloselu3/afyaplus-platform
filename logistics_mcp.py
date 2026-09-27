@@ -75,10 +75,13 @@ def check_stock(item: str, county: str | None = None) -> str:
 
     Args:
         item: one of "amoxicillin", "ors_sachets", "malaria_kits" (exact names).
-        county: optional county filter, e.g. "Kisumu". Omit for all clinics.
+        county: optional filter. Use it ONLY when the question explicitly limits itself
+            to one county. A start clinic or a clinic name is NOT a county filter.
+            Omit it (the default) to see all 5 clinics, e.g. for "which clinics need a reorder?".
 
-    Returns JSON {"item", "reorder_threshold", "stock": [{"clinic_id", "clinic",
-    "county", "units", "reorder_needed"}]}. reorder_needed is true when units < 10.
+    Returns JSON {"item", "clinics_included", "reorder_threshold", "stock": [{"clinic_id",
+    "clinic", "county", "units", "reorder_needed"}]}. reorder_needed is true when units < 10.
+    clinics_included says whether this is the whole network or a county subset.
     Counts are units on hand only: this data has NO prices, costs, suppliers,
     expiry dates, consumption history or staff information.
     Unknown item or county returns {"error": ..., "valid_values": [...]}.
@@ -86,14 +89,16 @@ def check_stock(item: str, county: str | None = None) -> str:
     item_key = str(item).strip().lower()
     if item_key not in VALID_ITEMS:
         return error(f"Unknown item '{item}'.", valid_values=VALID_ITEMS)
-    rows = CLINICS
+    rows, scope = CLINICS, f"all {len(CLINICS)} clinics"
     if county:
         match = next((c for c in VALID_COUNTIES if c.lower() == county.strip().lower()), None)
         if match is None:
             return error(f"Unknown county '{county}'.", valid_values=VALID_COUNTIES)
         rows = [c for c in CLINICS if c["county"] == match]
+        scope = f"{len(rows)} of {len(CLINICS)} clinics (county={match} only)"
     return json.dumps({
         "item": item_key,
+        "clinics_included": scope,
         "reorder_threshold": REORDER_THRESHOLD,
         "stock": [{"clinic_id": c["id"], "clinic": c["name"], "county": c["county"],
                    "units": c["stock"][item_key],
